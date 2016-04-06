@@ -1,24 +1,22 @@
 package io.github.erehmi.countdown;
 
-import android.view.View;
-
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
 /**
  * @author WhatsAndroid
  */
-class ViewAware {
+class ViewAware<T> {
     private static final String TAG = "ViewAware";
 
-    protected Reference<View> mViewRef;
+    protected Reference<T> mViewRef;
 
-    public ViewAware(View view) {
-        if (view == null) throw new IllegalArgumentException("view must not be null");
-        mViewRef = new WeakReference<View>(view);
+    public ViewAware(T viewAware) {
+        if (viewAware == null) throw new IllegalArgumentException("viewAware must not be null");
+        mViewRef = new WeakReference<T>(viewAware);
     }
 
-    public View getWrappedView() {
+    public T getWrappedAware() {
         return mViewRef.get();
     }
 
@@ -27,8 +25,8 @@ class ViewAware {
     }
 
     public int getId() {
-        View view = mViewRef.get();
-        return view == null ? super.hashCode() : view.hashCode();
+        T aware = mViewRef.get();
+        return aware == null ? super.hashCode() : aware.hashCode();
     }
 
 }

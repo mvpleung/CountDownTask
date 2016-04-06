@@ -33,62 +33,67 @@ public class CountDownAdapter extends ArrayAdapter<CountDownInfo> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder mViewHolder = null;
         if (convertView == null) {
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.list_item, parent, false);
+            mViewHolder = new ViewHolder(convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false));
+        } else {
+            mViewHolder = (ViewHolder) convertView.getTag();
         }
 
-        final CountDownInfo countDownInfo = getItem(position);
+        CountDownInfo countDownInfo = getItem(position);
         if (countDownInfo.millis > 0) {
-            startCountDown(position, countDownInfo, convertView);
+            startCountDown(position, countDownInfo, mViewHolder);
         } else {
-            cancelCountDown(position, countDownInfo, convertView);
+            cancelCountDown(position, countDownInfo, mViewHolder);
         }
         return convertView;
     }
 
-    private void startCountDown(final int position, final CountDownInfo countDownInfo, View convertView) {
+    private void startCountDown(final int position, final CountDownInfo countDownInfo, ViewHolder mViewHolder) {
         if (mCountDownTask != null) {
-            mCountDownTask.until(convertView, countDownInfo.millis,
-                    countDownInfo.countDownInterval, new OnCountDownListener() {
-                        @Override
-                        public void onTick(View view, long millisUntilFinished) {
-                            doOnTick(position, view, millisUntilFinished, countDownInfo.countDownInterval);
-                        }
+            mCountDownTask.until(mViewHolder, countDownInfo.millis, countDownInfo.countDownInterval, new OnCountDownListener<ViewHolder>() {
+                @Override
+                public void onTick(ViewHolder viewAware, long millisUntilFinished) {
+                    doOnTick(position, viewAware, millisUntilFinished, countDownInfo.countDownInterval);
+                }
 
-                        @Override
-                        public void onFinish(View view) {
-                            doOnFinish(position, view);
-                        }
-                    });
+                @Override
+                public void onFinish(ViewHolder viewAware) {
+                    doOnFinish(position, viewAware);
+                }
+            });
         }
     }
 
-    private void doOnTick(int position, View view, long millisUntilFinished, long countDownInterval) {
-        TextView textView1 = (TextView) view.findViewById(android.R.id.text1);
-        textView1.setText(String.valueOf(position));
+    private void doOnTick(int position, ViewHolder mViewHolder, long millisUntilFinished, long countDownInterval) {
+        mViewHolder.mTextTitle.setText(String.valueOf(position));
 
-        TextView textView2 = (TextView) view.findViewById(android.R.id.text2);
-        textView2.setText(String.valueOf((millisUntilFinished + countDownInterval - 1) / countDownInterval));
+        mViewHolder.mTextCountDowner.setText(String.valueOf((millisUntilFinished + countDownInterval - 1) / countDownInterval));
     }
 
-    private void doOnFinish(int position, View view) {
-        TextView textView1 = (TextView) view.findViewById(android.R.id.text1);
-        textView1.setText(String.valueOf(position));
+    private void doOnFinish(int position, ViewHolder mViewHolder) {
+        mViewHolder.mTextTitle.setText(String.valueOf(position));
 
-        TextView textView2 = (TextView) view.findViewById(android.R.id.text2);
-        textView2.setText("DONE.");
+        mViewHolder.mTextCountDowner.setText("DONE.");
     }
 
-    private void cancelCountDown(int position, CountDownInfo countDownInfo, View view) {
+    private void cancelCountDown(int position, CountDownInfo countDownInfo, ViewHolder mViewHolder) {
         if (mCountDownTask != null) {
-            mCountDownTask.cancel(view);
+            mCountDownTask.cancel(mViewHolder);
         }
 
-        TextView textView1 = (TextView) view.findViewById(android.R.id.text1);
-        textView1.setText(String.valueOf(position));
+        mViewHolder.mTextTitle.setText(String.valueOf(position));
 
-        TextView textView2 = (TextView) view.findViewById(android.R.id.text2);
-        textView2.setText(null);
+        mViewHolder.mTextCountDowner.setText(null);
+    }
+
+    private final static class ViewHolder {
+        TextView mTextTitle, mTextCountDowner;
+
+        public ViewHolder(View convertView) {
+            mTextTitle = (TextView) convertView.findViewById(android.R.id.text1);
+            mTextCountDowner = (TextView) convertView.findViewById(android.R.id.text2);
+            convertView.setTag(this);
+        }
     }
 }

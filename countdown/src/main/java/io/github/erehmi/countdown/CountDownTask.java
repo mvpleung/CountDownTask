@@ -2,7 +2,6 @@ package io.github.erehmi.countdown;
 
 import android.os.SystemClock;
 import android.util.SparseArray;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +14,7 @@ import io.github.erehmi.countdown.CountDownTimers.OnCountDownListener;
 /**
  * @author WhatsAndroid
  */
-public class CountDownTask {
+public class CountDownTask<T> {
     private static final String TAG = "CountDownTask";
 
     public static CountDownTask create() {
@@ -67,14 +66,14 @@ public class CountDownTask {
         return list;
     }
 
-    public CountDownTask until(View view, long millis, long countDownInterval, OnCountDownListener listener) {
+    public CountDownTask until(T aware, long millis, long countDownInterval, OnCountDownListener listener) {
         CountDownTimers timers = get(countDownInterval, true);
-        addViewIds(view, timers);
-        timers.until(view, millis, listener);
+        addViewIds(aware, timers);
+        timers.until(aware, millis, listener);
         return this;
     }
 
-    private CountDownTimers addViewIds(View view, CountDownTimers timers) {
+    private CountDownTimers addViewIds(T aware, CountDownTimers timers) {
         if (mViewIds == null) {
             synchronized (this) {
                 if (mViewIds == null) {
@@ -83,12 +82,12 @@ public class CountDownTask {
             }
         }
 
-        int id = new ViewAware(view).getId();
+        int id = new ViewAware(aware).getId();
         synchronized (this) {
             CountDownTimers oldTimers = mViewIds.get(id);
             if (oldTimers != timers) {
                 if (oldTimers != null) {
-                    oldTimers.cancel(view);
+                    oldTimers.cancel(aware);
                 }
                 mViewIds.append(id, timers);
             }
@@ -96,8 +95,8 @@ public class CountDownTask {
         }
     }
 
-    public void cancel(View view) {
-        CountDownTimers timers = removeViewIds(view);
+    public void cancel(T aware) {
+        CountDownTimers timers = removeViewIds(aware);
         boolean empty = false;
         if (mViewIds != null) {
             synchronized (this) {
@@ -107,13 +106,13 @@ public class CountDownTask {
         if (empty) {
             cancel();
         } else if (timers != null) {
-            timers.cancel(view);
+            timers.cancel(aware);
         }
     }
 
-    private CountDownTimers removeViewIds(View view) {
+    private CountDownTimers removeViewIds(T aware) {
         CountDownTimers timers = null;
-        int id = new ViewAware(view).getId();
+        int id = new ViewAware(aware).getId();
 
         if (mViewIds != null) {
             synchronized (this) {

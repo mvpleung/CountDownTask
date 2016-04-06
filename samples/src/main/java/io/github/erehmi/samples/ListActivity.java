@@ -75,17 +75,17 @@ public class ListActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.action_list1:
-            cancelCountDown();
-            initList1();
-            startCountDown();
-            break;
+            case R.id.action_list1:
+                cancelCountDown();
+                initList1();
+                startCountDown();
+                break;
 
-        case R.id.action_list2:
-            cancelCountDown();
-            initList2();
-            startCountDown();
-            break;
+            case R.id.action_list2:
+                cancelCountDown();
+                initList2();
+                startCountDown();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

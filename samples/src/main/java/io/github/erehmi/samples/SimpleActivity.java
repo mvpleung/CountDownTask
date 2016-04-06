@@ -8,7 +8,7 @@ import android.widget.TextView;
 import io.github.erehmi.countdown.CountDownTask;
 import io.github.erehmi.countdown.CountDownTimers.OnCountDownListener;
 
-public class SimpleActivity extends AppCompatActivity implements OnCountDownListener {
+public class SimpleActivity extends AppCompatActivity implements OnCountDownListener<View> {
     private static final String TAG = SimpleActivity.class.getSimpleName();
 
     private TextView mCountDownTextView;

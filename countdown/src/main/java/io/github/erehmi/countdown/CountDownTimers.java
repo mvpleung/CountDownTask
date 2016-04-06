@@ -3,7 +3,6 @@ package io.github.erehmi.countdown;
 import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.util.SparseArray;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +10,7 @@ import java.util.List;
 /**
  * @author WhatsAndroid
  */
-public class CountDownTimers {
+public class CountDownTimers<T> {
     private static final String TAG = "CountDownTimers";
 
     private final long mCountDownInterval;
@@ -19,10 +18,10 @@ public class CountDownTimers {
 
     private CountDownTimer mCountDownTimer;
 
-    public interface OnCountDownListener {
-        void onTick(View view, long millisUntilFinished);
+    public interface OnCountDownListener<T> {
+        void onTick(T viewAware, long millisUntilFinished);
 
-        void onFinish(View view);
+        void onFinish(T viewAware);
     }
 
     private static class CountDownInfo {
@@ -51,8 +50,8 @@ public class CountDownTimers {
         return mCountDownInterval;
     }
 
-    protected void until(View view, long millis, OnCountDownListener listener) {
-        ViewAware viewAware = new ViewAware(view);
+    protected void until(T aware, long millis, OnCountDownListener listener) {
+        ViewAware viewAware = new ViewAware(aware);
         CountDownInfo countDownInfo = new CountDownInfo(viewAware, millis, listener);
         ensureCountDownInfoSparseArray();
 
@@ -137,22 +136,22 @@ public class CountDownTimers {
         long millis = countDownInfo.millis;
         OnCountDownListener listener = countDownInfo.listener;
 
-        ViewAware viewAware = countDownInfo.viewAware;
-        View view = viewAware.getWrappedView();
-        if (millis > currentMillis && view != null && listener != null) {
-            listener.onTick(view, millis - currentMillis);
+        ViewAware<T> viewAware = countDownInfo.viewAware;
+        T aware = viewAware.getWrappedAware();
+        if (millis > currentMillis && aware != null && listener != null) {
+            listener.onTick(aware, millis - currentMillis);
         }
     }
 
     private void doOnFinish(CountDownInfo countDownInfo) {
-        ViewAware viewAware = countDownInfo.viewAware;
+        ViewAware<T> viewAware = countDownInfo.viewAware;
         int id = viewAware.getId();
         LogUtils.d("doOnFinish() # id: " + id);
 
-        View view = viewAware.getWrappedView();
+        T aware = viewAware.getWrappedAware();
         OnCountDownListener listener = countDownInfo.listener;
-        if (view != null && listener != null) {
-            listener.onFinish(view);
+        if (aware != null && listener != null) {
+            listener.onFinish(aware);
         }
     }
 
@@ -166,8 +165,8 @@ public class CountDownTimers {
         }
     }
 
-    protected void cancel(View view) {
-        ViewAware viewAware = new ViewAware(view);
+    protected void cancel(T aware) {
+        ViewAware viewAware = new ViewAware(aware);
         int id = viewAware.getId();
         if (mCountDownInfoSparseArray != null) {
             CountDownInfo countDownInfo = mCountDownInfoSparseArray.get(id);
